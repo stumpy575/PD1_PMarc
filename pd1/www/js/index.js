@@ -1,29 +1,72 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+const users = 
+    { "admin": "1234" 
+};
 
-// Wait for the deviceready event before using any of Cordova's device APIs.
-// See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
-document.addEventListener('deviceready', onDeviceReady, false);
+window.onload = function () {
+    document.getElementById("btnLogin").addEventListener("click", showLogin);
+    document.getElementById("btnSignin").addEventListener("click", showSignin);
+    document.getElementById("loginForm").addEventListener("submit", handleLogin);
+    document.getElementById("signinForm").addEventListener("submit", handleSignin);
+};
 
-function onDeviceReady() {
-    // Cordova is now initialized. Have fun!
+function setStatus(msg, isError) {
+    const message = document.getElementById("statusMsg");
+    message.style.color = isError ? "red" : "green";
+    message.textContent = msg;
+}
 
-    console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
-    document.getElementById('deviceready').classList.add('ready');
+function clearStatus() {
+    document.getElementById("statusMsg").textContent = "";
+}
+
+function showLogin() {
+    document.getElementById("loginPanel").style.display = "block";
+    document.getElementById("signinPanel").style.display = "none";
+    document.getElementById("btnLogin").classList.add("selected");
+    document.getElementById("btnSignin").classList.remove("selected");
+    clearStatus();
+}
+
+function showSignin() {
+    document.getElementById("loginPanel").style.display = "none";
+    document.getElementById("signinPanel").style.display = "block";
+    document.getElementById("btnLogin").classList.remove("selected");
+    document.getElementById("btnSignin").classList.add("selected");
+    clearStatus();
+}
+
+function handleLogin(evt) {
+    evt.preventDefault();
+    const enteredUser = document.getElementById("inputUsername").value;
+    const enteredPass = document.getElementById("inputPassword").value;
+
+    const isValid = users[enteredUser] && users[enteredUser] === enteredPass;
+
+    if (isValid) {
+        setStatus(`Welcome, ${enteredUser}!`, false);
+    } else {
+        setStatus("Incorrect username or password.", true);
+    }
+}
+
+function handleSignin(evt) {
+    evt.preventDefault();
+    const newEmail    = document.getElementById("inputEmail").value;
+    const newUsername = document.getElementById("inputNewUser").value;
+    const newPass     = document.getElementById("inputNewPass").value;
+    const confirmPass = document.getElementById("inputConfirmPass").value;
+
+    if (users[newUsername]) {
+        setStatus("This username already exists.", true);
+        return;
+    }
+
+    if (newPass !== confirmPass) {
+        setStatus("Passwords do not match.", true);
+        return;
+    }
+
+    users[newUsername] = newPass;
+    setStatus(`User ${newUsername} registered successfully!`, false);
+    showLogin();
 }
